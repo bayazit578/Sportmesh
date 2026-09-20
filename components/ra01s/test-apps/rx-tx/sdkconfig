@@ -730,8 +730,13 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
-# Application Configuration
+# Sx126x RX/TX test config
 #
+# default:
+CONFIG_SENDER=y
+# default:
+# CONFIG_RECEIVER is not set
+# end of Sx126x RX/TX test config
 
 #
 # SX126X Configuration
