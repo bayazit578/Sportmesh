@@ -2,17 +2,27 @@
 
 #include "esp_log.h"
 
+// valid adresses in range 0001..7FFF
+static constexpr lm::AddressType kInvalidAddress = 0;
+static constexpr const char* kTag = "station";
+
+#define IS_ADDR_VALID(addr) \
+  (addr != kInvalidAddress)
+
 Station::Station(lm::PinConfig pin_config, 
                  lm::RadioConfig radio_config,
                  StationType station_type)
+
+  : base_station_addr{ kInvalidAddress }
 {
 
-  m_protocol_config.setNodeCapabilities(station_type);
+  lm::LoRaMeshProtocolConfig protocol_config;
+  protocol_config.setNodeCapabilities(station_type);
   
   m_mesher = lm::LoraMesher::Builder()
                  .withRadioConfig(radio_config)
                  .withPinConfig(pin_config)
-                 .withLoRaMeshProtocol(m_protocol_config)
+                 .withLoRaMeshProtocol(protocol_config)
                  .Build();
 
   m_mesher->SetDataCallback(
@@ -33,16 +43,35 @@ int Station::start()
   return 0;
 }
 
-int Station::register_punch()
+int Station::register_punch(PunchMessage msg)
 {
+  if (!IS_ADDR_VALID(base_station_addr)) {
+    ESP_LOGW(kTag, "base station undiscovered");
+    return 1;
+  }
   
+  auto capatabilities = m_mesher->GetNodeCapabilities();
+  if (capatabilities & StationType::kBaseStation 
+      || capatabilities & StationType::kCheckpoint)
+    return 0;
+  
+  std::vector<uint8_t> data;
+  msg.serialize(data);
+  lm::Result res = m_mesher->Send(base_station_addr, data);
+
+  if (!res) {
+    ESP_LOGE(kTag, "%s", res.GetErrorMessage().c_str());
+    return 1;
+  }
+
+  return 0;
 }
 
 void Station::m_discover_base_station()
 {
   auto routes = m_mesher->GetRoutingTable();
 
-  if (m_protocol_config.getNodeCapabilities() & StationType::kBaseStation)
+  if (m_mesher->GetNodeCapabilities() & StationType::kBaseStation)
     return;
 
   if (routes.empty()) {
@@ -50,16 +79,16 @@ void Station::m_discover_base_station()
     return;
   }
 
-  for (auto& route : routes) {
-    std::uint8_t cap = 
-      m_mesher->GetNodeCapabilities(route.destination);
+  auto base = 
+    m_mesher->GetClosestNodeByCapability(StationType::kBaseStation);
 
-    if (cap & StationType::kBaseStation) {
-      base_station_addr = route.destination;
-      ESP_LOGI(kTag, "Discovered base station %d", route.destination);
-      return;
-    }
+  if (!base.has_value()) {
+    base_station_addr = kInvalidAddress;
+    ESP_LOGW(kTag, "No base station in route table");
   }
+
+  base_station_addr = base.value().destination;
+  ESP_LOGI(kTag, "Discovered base station %x", base_station_addr);
 }
 
 void Station::m_data_callback(lm::AddressType source, 

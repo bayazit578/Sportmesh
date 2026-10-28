@@ -12,6 +12,19 @@ enum StationType : std::uint8_t
   kRetranslator = 0x08,
 };
 
+struct PunchMessage {
+  uint16_t id;
+  uint16_t time;
+
+  void serialize(std::vector<uint8_t>& dat)
+  {
+    uint16_t payload[] = { id, time };
+    std::size_t payload_size = sizeof(payload) / sizeof(payload[0]);
+    dat.resize(payload_size);
+    std::memcpy(dat.data(), payload, payload_size);
+  }
+};
+
 class Station
 {
 public:
@@ -21,7 +34,7 @@ public:
 
   int start();
 
-  int register_punch();
+  int register_punch(PunchMessage msg);
 
 private:
 
@@ -31,10 +44,7 @@ private:
   void m_discover_base_station();
 
   std::unique_ptr<lm::LoraMesher> m_mesher;
-  lm::LoRaMeshProtocolConfig m_protocol_config;
 
   lm::AddressType base_station_addr;
-
-  static constexpr const char* kTag = "station";
 
 };

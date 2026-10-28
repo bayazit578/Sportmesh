@@ -1,4 +1,5 @@
-build/
+.pio/
+.pioenvs/
+.piolibdeps/
 .cache/
-.deps/
-*.old
+/compile_commands.json
