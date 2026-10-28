@@ -1,5 +1,6 @@
 #include "station.hpp"
 #include "config.hpp"
+#include "reader.hpp"
 
 void setup() {
 
@@ -29,9 +30,12 @@ void setup() {
 
   Station station { pin_config, radio_config };
 
-  if (int ret = station.start(); ret != 0) { }
+  if (int ret = station.Start(); ret != 0) { }
 
-  
+  Reader reader { station.getReadHandler(),
+                  station.getReadQueue() };
+
+  for (;;) { }
 }
 
 void loop() { }
