@@ -6,20 +6,25 @@
 #include "freertos/projdefs.h"
 #include <SPI.h>
 
-// valid adresses in range 0001..7FFF
-static constexpr lm::AddressType kInvalidAddress = 0;
-static constexpr const char* kTag = "station";
-static constexpr uint32_t kBaseStDiscoverInt_ms = 3000;
-static constexpr uint32_t kReaderResponseTimeout_ms = 100;
-static constexpr uint32_t kReadQueueLen = 20;
-
 #define IS_ADDR_VALID(addr) \
   (addr != kInvalidAddress)
+
+// valid adresses in range 0001..7FFF
+static constexpr lm::AddressType kInvalidAddress = 0;
+
+static constexpr const char* kTag = "station";
+
+static constexpr uint32_t kBaseStDiscoverInt_ms     = 3000;
+static constexpr uint32_t kReaderResponseTimeout_ms = 100;
+
+static constexpr uint32_t kReadQueueLen = 20;
+
 
 void taskDiscoverBaseStation(void* param);
 
 // Triggered by reader
 void taskRegisterPunch(void* param);
+
 
 Station::Station(lm::PinConfig pin_config, 
                  lm::RadioConfig radio_config,

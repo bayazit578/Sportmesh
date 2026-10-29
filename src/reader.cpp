@@ -11,13 +11,16 @@
 #include "punch_event.hpp"
 
 static constexpr const char* kTag = "reader";
+
 static constexpr std::uint32_t kMFRCTriggerInterval_ms = 300;
+
 
 static void IRAM_ATTR intRead(void* param);
 
 void taskTriggerReader(void* param);
 
 void taskOnReadInterrupt(void *param);
+
 
 Reader::Reader(TaskHandle_t read_register,
                QueueHandle_t read_queue)
@@ -42,25 +45,22 @@ Reader::Reader(TaskHandle_t read_register,
   BaseType_t res = pdFAIL;
 
   // Trigger reader periodically
-  res = xTaskCreate(
-    taskTriggerReader, "trigger reader",
-    4096, this,
-    1, nullptr);
+  res = xTaskCreate(taskTriggerReader, "trigger reader",
+                    4096, this,
+                    1, nullptr);
 
   if (res != pdPASS)
     ESP_LOGE(kTag, "Failed to create reader trigger task");
   
   xTaskHandle on_read_int_task_handle = nullptr;
-  res = xTaskCreate(
-    taskOnReadInterrupt, "on read interrupt",
-    4096, this,
-    2, &on_read_int_task_handle);
+  res = xTaskCreate(taskOnReadInterrupt, "on read interrupt",
+                    4096, this,
+                    2, &on_read_int_task_handle);
 
-  attachInterruptArg(
-    digitalPinToInterrupt(config::kReaderPinIrq), 
-    intRead, 
-    on_read_int_task_handle, 
-    FALLING);
+  attachInterruptArg(digitalPinToInterrupt(config::kReaderPinIrq), 
+                     intRead, 
+                     on_read_int_task_handle, 
+                     FALLING);
 }
 
 static void IRAM_ATTR intRead(void* param)
@@ -79,18 +79,28 @@ void taskOnReadInterrupt(void* param)
 
   for (;;) {
     if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY)) {
-      reader->m_mfrc522.PICC_ReadCardSerial();
-      std::memcpy(&event.uid, &reader->m_mfrc522.uid.uidByte, config::kUidSize_byte);
+      // Disable interrupt for time of processing
+      reader->m_mfrc522.PCD_WriteRegister(MFRC522::ComIEnReg, 0x80);
 
-      res = xQueueSend(reader->m_read_queue, 
-                 static_cast<void*>(&event),
-                 static_cast<TickType_t>(0)); 
-      if (res != pdPASS)
-        ESP_LOGE(kTag, "Failed to send msg to read queue");
+      bool selected = reader->m_mfrc522.PICC_ReadCardSerial();
+      if (selected) {
+        std::memcpy(&event.uid, &reader->m_mfrc522.uid.uidByte, config::kUidSize_byte);
 
-      xTaskNotifyGive(reader->m_read_register_task);
+        res = xQueueSend(reader->m_read_queue, 
+                   static_cast<void*>(&event),
+                   static_cast<TickType_t>(0)); 
+        if (res != pdPASS)
+          ESP_LOGE(kTag, "Failed to send msg to read queue");
+        xTaskNotifyGive(reader->m_read_register_task);
+
+        reader->m_mfrc522.PICC_HaltA();
+      }
+
+      // Clearing interrupt
       reader->m_mfrc522.PCD_WriteRegister(reader->m_mfrc522.ComIrqReg, 0x7F); 
-      reader->m_mfrc522.PICC_HaltA();
+
+      // Rearming interrupts
+      reader->m_mfrc522.PCD_WriteRegister(reader->m_mfrc522.ComIEnReg, 0xA0); 
     }
   }
 }

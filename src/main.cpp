@@ -9,7 +9,7 @@ void setup() {
   loramesher::PinConfig pin_config {
     config::kPinCs,
     config::kPinRst,
-    config::kPinIrq,
+    config::kPinDio0,
     config::kPinBusy,
     config::kPinSck,
     config::kPinMiso,
