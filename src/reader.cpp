@@ -63,7 +63,7 @@ Reader::Reader(TaskHandle_t read_register,
                      FALLING);
 }
 
-static void IRAM_ATTR intRead(void* param)
+static void intRead(void* param)
 {
   TaskHandle_t on_read_handle = static_cast<TaskHandle_t>(param);
   BaseType_t higher_priority_task_woken;

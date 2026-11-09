@@ -108,7 +108,7 @@ int Station::RegisterPunch(PunchEvent msg)
       || capatabilities & StationType::kCheckpoint)
     return 0;
   
-  std::vector<uint8_t> data;
+  std::vector<std::uint8_t> data;
   msg.serialize(data);
   lm::Result res = m_mesher->Send(m_base_station_addr, data);
 
