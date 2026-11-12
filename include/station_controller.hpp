@@ -12,6 +12,7 @@ class StationController
 public:
   StationController(loramesher::PinConfig lora_pin_cfg,
                     loramesher::RadioConfig lora_radio_cfg,
+                    ReaderConfig reader_cfg,
                     DisplayConfig display_cfg);
 
   StationController(StationController&) = delete;

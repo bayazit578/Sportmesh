@@ -35,9 +35,14 @@ public:
 
   ErrCode Start();
 
-  ErrCode RegisterPunch(PunchEvent msg);
-
-  ErrCode DiscoverBaseStation();
+  /* 
+  * @brief changes station type
+  *         invalidates read_handler and read_queue
+  *         code that uses it must update them!
+  * @param new_type new station type;
+  *        if equals current, nothing happens
+  */
+  ErrCode ChangeType(StationType new_type);
 
   TaskHandle_t getReadHandler() { return m_register_task_handle; }
   QueueHandle_t getReadQueue() { return m_read_queue; }
@@ -47,13 +52,26 @@ private:
   void DataCallback(lm::AddressType source, 
                     const std::vector<uint8_t>& data);
 
+  ErrCode RegisterPunch(PunchEvent msg);
+
+  ErrCode DiscoverBaseStation();
+
   std::unique_ptr<lm::LoraMesher> m_mesher;
 
   lm::AddressType m_base_station_addr;
 
-  TaskHandle_t m_register_task_handle;
-
+  TaskHandle_t  m_register_task_handle;
   QueueHandle_t m_read_queue;
+
+  StationType m_type;
+
+  bool m_is_lora_running;
+
+  /* @brief \ref taskDiscoverBaseStation deletes itself */
+  ErrCode CreateBaseStationDiscoverTask();
+
+  ErrCode CreateRegisterPunshTask();
+  ErrCode DeleteRegisterPunchTask();
 
   friend void taskDiscoverBaseStation(void* param);
   friend void taskRegisterPunch(void* param);

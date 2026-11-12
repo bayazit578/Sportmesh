@@ -1,4 +1,5 @@
 #include "display.hpp"
+#include "reader.hpp"
 #include "station_controller.hpp"
 #include "config.hpp"
 
@@ -34,13 +35,25 @@ void setup() {
     SM::config::kDisplayDigitCnt
   };
 
+  SM::ReaderConfig reader_config {
+    SM::config::kReaderPinIrq,
+    SM::config::kReaderPinRst,
+    SM::config::kReaderPinSck,
+    SM::config::kReaderPinMiso,
+    SM::config::kReaderPinMosi,
+    SM::config::kReaderPinCs,
+  };
+
   SM::StationController controller {
     pin_config,
     radio_config,
+    reader_config,
     display_config
   };
 
-  for (;;) {  }
+  for (;;) { 
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  }
 }
 
 void loop() { }

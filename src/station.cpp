@@ -7,10 +7,14 @@
 
 #include "sm_namespace.hpp"
 
+BEGIN_SPORTMESH_NAMESPACE
+
+#define CHECK_OR_RETURN_ERROR(expr)   \
+  if ((err = (expr)) != ErrCode::kOk) \
+    return err;
+
 #define IS_ADDR_VALID(addr) \
   (addr != kInvalidAddress)
-
-BEGIN_SPORTMESH_NAMESPACE
 
 // valid adresses in range 0001..7FFF
 static constexpr lm::AddressType kInvalidAddress = 0;
@@ -34,13 +38,15 @@ Station::Station(lm::PinConfig pin_config,
 
   : m_base_station_addr{ kInvalidAddress },
     m_register_task_handle{ nullptr },
-    m_read_queue{ nullptr }
+    m_read_queue{ nullptr },
+    m_type{ station_type },
+    m_is_lora_running{ false }
 {
 
   lm::LoRaMeshProtocolConfig protocol_config;
   protocol_config.setNodeCapabilities(station_type);
   
-  if (station_type == kBaseStation)
+  if (m_type == kBaseStation)
     protocol_config.setNodeRole(lm::NodeRole::NETWORK_MANAGER);
   else
     protocol_config.setNodeRole(lm::NodeRole::NODE_ONLY);
@@ -56,52 +62,97 @@ Station::Station(lm::PinConfig pin_config,
       DataCallback(source, data); 
     }
   );
+  
 }
 
 ErrCode Station::Start()
 {
-  lm::Result init_result = m_mesher->Start();
-  if (!init_result) {
-    ESP_LOGE("station", "%s", init_result.GetErrorMessage().c_str());
+  if (!m_is_lora_running) {
+    lm::Result init_result = m_mesher->Start();
+    if (!init_result) {
+      ESP_LOGE("station", "%s", init_result.GetErrorMessage().c_str());
+      return ErrCode::kLoraMesher;
+    }
+    m_is_lora_running = true;
+  }
+
+  ErrCode err = ErrCode::kOk;
+
+  if (m_type == kCheckpoint || m_type == kRetranslator) {
+    CHECK_OR_RETURN_ERROR(CreateBaseStationDiscoverTask());
+  }
+  
+  if (m_type == kCheckpoint) {
+    CHECK_OR_RETURN_ERROR(CreateRegisterPunshTask());
+  }
+
+  return ErrCode::kOk;
+}
+
+ErrCode Station::ChangeType(StationType new_type)
+{
+  if (new_type == m_type) return ErrCode::kOk;
+
+  ErrCode err = ErrCode::kOk;
+  lm::Result res{};
+
+  res = m_mesher->setNodeCapabilities(new_type);
+  if (!res) {
+    ESP_LOGE(kTag, "Failed to change node type");
     return ErrCode::kLoraMesher;
   }
 
-  BaseType_t res;
+  switch (m_type) {
+    case kBaseStation:
+      res = m_mesher->setNodeRole(lm::NodeRole::NODE_ONLY);
+      if (!res) {
+        ESP_LOGE(kTag, "Failed to change node role");
+        return ErrCode::kLoraMesher;
+      }
 
-  res = xTaskCreate(
-      taskDiscoverBaseStation, "discover base",
-      64, this,
-      1, nullptr);
+      CHECK_OR_RETURN_ERROR(CreateBaseStationDiscoverTask());
 
-  if (res != pdPASS) {
-    ESP_LOGE(kTag, "Failed to create base discover task [RTOS err code %d]", res);
-    return ErrCode::kRTOS;
+      if (new_type == kCheckpoint)
+        CHECK_OR_RETURN_ERROR(CreateRegisterPunshTask());
+      
+      break;
+
+    case kCheckpoint:
+      if (new_type == kBaseStation) {
+        res = m_mesher->setNodeRole(lm::NodeRole::NODE_ONLY);
+        if (!res) {
+          ESP_LOGE(kTag, "Failed to change node role");
+          return ErrCode::kLoraMesher;
+        }
+      }
+
+      CHECK_OR_RETURN_ERROR(DeleteRegisterPunchTask());
+      break;
+
+    case kRetranslator:
+      if (new_type == kBaseStation) {
+        res = m_mesher->setNodeRole(lm::NodeRole::NODE_ONLY);
+        if (!res) {
+          ESP_LOGE(kTag, "Failed to change node role");
+          return ErrCode::kLoraMesher;
+        }
+      }
+
+      if (new_type == kCheckpoint)
+        CHECK_OR_RETURN_ERROR(CreateRegisterPunshTask());
+      break;
+
+    default:
+      break;
   }
   
-  res = xTaskCreate(
-    taskRegisterPunch, "register punch",
-    64, this,
-    2, &m_register_task_handle);
-
-  if (res != pdPASS) {
-    ESP_LOGE(kTag, "Failed to create punch register task [RTOS err code %d]", res);
-    return ErrCode::kRTOS;
-  }
-
-  m_read_queue = xQueueCreate(kReadQueueLen, sizeof(PunchEvent));
-
-  if (!m_read_queue) {
-    ESP_LOGE(kTag, "Failed to create read queue [RTOS err code %d]", res);
-    return ErrCode::kRTOS;
-  }
-
   return ErrCode::kOk;
 }
 
 ErrCode Station::RegisterPunch(PunchEvent msg)
 {
   if (!IS_ADDR_VALID(m_base_station_addr)) {
-    ESP_LOGW(kTag, "base station undiscovered");
+    ESP_LOGE(kTag, "base station undiscovered");
     return ErrCode::kAddrInvalid;
   }
   
@@ -160,6 +211,48 @@ void Station::DataCallback(lm::AddressType source,
   } else {
       ESP_LOG_BUFFER_HEX_LEVEL(kTag, data.data(), data.size(), ESP_LOG_INFO);
   }
+}
+
+ErrCode Station::CreateBaseStationDiscoverTask()
+{
+  auto res = xTaskCreate(
+      taskDiscoverBaseStation, "discover base",
+      512, this,
+      1, nullptr);
+
+  if (res != pdPASS) {
+    ESP_LOGE(kTag, "Failed to create base discover task [RTOS err code %d]", res);
+    return ErrCode::kRTOS;
+  }
+}
+
+ErrCode Station::CreateRegisterPunshTask()
+{
+  auto res = xTaskCreate(
+    taskRegisterPunch, "register punch",
+    512, this,
+    2, &m_register_task_handle);
+
+  if (res != pdPASS) {
+    ESP_LOGE(kTag, "Failed to create punch register task [RTOS err code %d]", res);
+    return ErrCode::kRTOS;
+  }
+
+  m_read_queue = xQueueCreate(kReadQueueLen, sizeof(PunchEvent));
+
+  if (!m_read_queue) {
+    ESP_LOGE(kTag, "Failed to create read queue [RTOS err code %d]", res);
+    return ErrCode::kRTOS;
+  }
+}
+
+ErrCode Station::DeleteRegisterPunchTask()
+{
+  if (m_register_task_handle != NULL)
+    vTaskDelete(m_register_task_handle);
+
+  if (m_read_queue != NULL)
+    vQueueDelete(m_read_queue);
 }
 
 void taskRegisterPunch(void* param)
