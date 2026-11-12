@@ -1,0 +1,5 @@
+.pio/
+.pioenvs/
+.piolibdeps/
+.cache/
+/compile_commands.json
