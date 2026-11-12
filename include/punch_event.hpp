@@ -3,7 +3,11 @@
 #include <cstdint>
 #include <cstring>
 #include <vector>
+
 #include "config.hpp"
+#include "sm_namespace.hpp"
+
+BEGIN_SPORTMESH_NAMESPACE
 
 struct PunchEvent {
   uint8_t uid[config::kUidSize_byte];
@@ -16,3 +20,4 @@ struct PunchEvent {
   }
 };
 
+END_SPORTMESH_NAMESPACE

@@ -4,6 +4,10 @@
 
 #include "loramesher.hpp"
 
+#include "sm_namespace.hpp"
+
+BEGIN_SPORTMESH_NAMESPACE
+
 namespace config {
 
 // Lora SPI on HSPI (2)
@@ -34,6 +38,7 @@ constexpr uint8_t kDisplayDigitCnt = 4;
 
 constexpr uint8_t kVMeas = 35;
 
+
 constexpr loramesher::RadioType kRadioType = loramesher::RadioType::kSx1262;
 
 constexpr float    kFrequency       = 869.900F; // MHz — EU868 band
@@ -48,3 +53,5 @@ constexpr uint16_t kPreambleLength  = 8U;       // Preamble length in symbols
 constexpr const std::size_t kUidSize_byte = 10;
 
 } // namespace config
+
+END_SPORTMESH_NAMESPACE

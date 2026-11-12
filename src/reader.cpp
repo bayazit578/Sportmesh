@@ -5,10 +5,12 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/portmacro.h"
 #include "freertos/projdefs.h"
-#include <array>
 
 #include "config.hpp"
 #include "punch_event.hpp"
+#include "sm_namespace.hpp"
+
+BEGIN_SPORTMESH_NAMESPACE
 
 static constexpr const char* kTag = "reader";
 
@@ -22,20 +24,29 @@ void taskTriggerReader(void* param);
 void taskOnReadInterrupt(void *param);
 
 
-Reader::Reader(TaskHandle_t read_register,
-               QueueHandle_t read_queue)
-  : m_mfrc522{ config::kReaderPinCs, config::kReaderPinRst },
-    m_read_register_task{ read_register },
+Reader::Reader(TaskHandle_t read_register_task, 
+               QueueHandle_t read_queue,
+               ReaderConfig cfg)
+  : m_pin_cfg{ cfg },
+    m_mfrc522{ m_pin_cfg.pin_cs, m_pin_cfg.pin_rst },
+    m_read_register_task{ read_register_task },
     m_read_queue{ read_queue }
 {
-  pinMode(config::kReaderPinIrq, INPUT_PULLUP);
-  SPI.begin(config::kReaderPinSck, config::kReaderPinMiso,
-            config::kReaderPinMosi, config::kReaderPinCs);
+  pinMode(m_pin_cfg.pin_irq, INPUT_PULLUP);
+}
+
+ErrCode Reader::Start()
+{
+  SPI.begin(m_pin_cfg.pin_sck, m_pin_cfg.pin_miso,
+            m_pin_cfg.pin_mosi, m_pin_cfg.pin_cs);
+
   m_mfrc522.PCD_Init();
 
   const byte version = m_mfrc522.PCD_ReadRegister(MFRC522::VersionReg);
-  if (version != 0x91 && version != 0x92)
+  if (version != 0x91 && version != 0x92) {
     ESP_LOGE(kTag, "RC522 not detected (version 0x%02X)", version);
+    return ErrCode::kPeripheralNotDetected;
+  }
 
   ESP_LOGI(kTag, "RC522 version 0x%02X", version);
 
@@ -49,8 +60,10 @@ Reader::Reader(TaskHandle_t read_register,
                     4096, this,
                     1, nullptr);
 
-  if (res != pdPASS)
+  if (res != pdPASS) {
     ESP_LOGE(kTag, "Failed to create reader trigger task");
+    return ErrCode::kRTOS;
+  }
   
   xTaskHandle on_read_int_task_handle = nullptr;
   res = xTaskCreate(taskOnReadInterrupt, "on read interrupt",
@@ -61,6 +74,8 @@ Reader::Reader(TaskHandle_t read_register,
                      intRead, 
                      on_read_int_task_handle, 
                      FALLING);
+
+  return ErrCode::kOk;
 }
 
 static void intRead(void* param)
@@ -122,3 +137,5 @@ void taskTriggerReader(void* param)
     vTaskDelayUntil(&last_wake, interval);
   }
 }
+
+END_SPORTMESH_NAMESPACE

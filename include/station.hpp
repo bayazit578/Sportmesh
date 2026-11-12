@@ -1,12 +1,17 @@
 #pragma once
 
+#include <Arduino.h>
 #include <memory>
-#include "Arduino.h"
+
 #include "loramesher.hpp"
+
+#include "errcode.hpp"
 #include "punch_event.hpp"
+#include "sm_namespace.hpp"
 
 namespace lm = loramesher;
 
+BEGIN_SPORTMESH_NAMESPACE
 
 enum StationType : std::uint8_t 
 {
@@ -22,19 +27,17 @@ public:
           lm::RadioConfig radio_config,
           StationType station_type = kCheckpoint);
 
-  // Non-copyable
   Station(Station&) = delete;
   Station& operator=(Station&) = delete;
 
-  // Movale
-  Station(Station&&) noexcept = default;
-  Station& operator=(Station&&) noexcept = default;
+  Station(Station&&) noexcept = delete;
+  Station& operator=(Station&&) noexcept = delete;
 
-  int Start();
+  ErrCode Start();
 
-  int RegisterPunch(PunchEvent msg);
+  ErrCode RegisterPunch(PunchEvent msg);
 
-  int DiscoverBaseStation();
+  ErrCode DiscoverBaseStation();
 
   TaskHandle_t getReadHandler() { return m_register_task_handle; }
   QueueHandle_t getReadQueue() { return m_read_queue; }
@@ -42,7 +45,7 @@ public:
 private:
 
   void DataCallback(lm::AddressType source, 
-                       const std::vector<uint8_t>& data);
+                    const std::vector<uint8_t>& data);
 
   std::unique_ptr<lm::LoraMesher> m_mesher;
 
@@ -56,3 +59,5 @@ private:
   friend void taskRegisterPunch(void* param);
 
 };
+
+END_SPORTMESH_NAMESPACE

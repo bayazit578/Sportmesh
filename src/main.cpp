@@ -1,41 +1,46 @@
-#include "station.hpp"
+#include "display.hpp"
+#include "station_controller.hpp"
 #include "config.hpp"
-#include "reader.hpp"
 
 void setup() {
 
   Serial.begin(SERIAL_BAUDRATE);
 
   loramesher::PinConfig pin_config {
-    config::kPinCs,
-    config::kPinRst,
-    config::kPinDio0,
-    config::kPinBusy,
-    config::kPinSck,
-    config::kPinMiso,
-    config::kPinMosi
+    SM::config::kPinCs,
+    SM::config::kPinRst,
+    SM::config::kPinDio0,
+    SM::config::kPinBusy,
+    SM::config::kPinSck,
+    SM::config::kPinMiso,
+    SM::config::kPinMosi
   };
 
   loramesher::RadioConfig radio_config {
-    config::kRadioType,
-    config::kFrequency,       
-    config::kSpreadingFactor, 
-    config::kBandwidth,       
-    config::kCodingRate,      
-    config::kPower,           
-    config::kSyncWord,        
-    config::kCrc,             
-    config::kPreambleLength,  
+    SM::config::kRadioType,
+    SM::config::kFrequency,       
+    SM::config::kSpreadingFactor, 
+    SM::config::kBandwidth,       
+    SM::config::kCodingRate,      
+    SM::config::kPower,           
+    SM::config::kSyncWord,        
+    SM::config::kCrc,             
+    SM::config::kPreambleLength
   };
 
-  Station station { pin_config, radio_config };
+  SM::DisplayConfig display_config {
+    SM::config::kI2cDio,
+    SM::config::kI2cClk,
+    SM::config::kDisplayDigitCnt
+  };
 
-  if (int ret = station.Start(); ret != 0) { }
+  SM::StationController controller {
+    pin_config,
+    radio_config,
+    display_config
+  };
 
-  Reader reader { station.getReadHandler(),
-                  station.getReadQueue() };
-
-  for (;;) { }
+  for (;;) {  }
 }
 
 void loop() { }
