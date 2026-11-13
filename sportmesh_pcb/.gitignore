@@ -1,0 +1,22 @@
+# KiCad backup files
+*-bak
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*.bak
+
+# KiCad auto-archive
+backups/
+
+# Locally-regenerated footprint cache
+fp-info-cache
+
+# Autosave lock files
+*.lck
+~*.lck
+
+# Generated manufacturing outputs
+gerbers/
+output/
+fabrication/
+jlcpcb/
+*.zip
