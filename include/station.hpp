@@ -44,8 +44,10 @@ public:
   */
   ErrCode ChangeType(StationType new_type);
 
-  TaskHandle_t getReadHandler() { return m_register_task_handle; }
-  QueueHandle_t getReadQueue() { return m_read_queue; }
+  TaskHandle_t getReadHandler() const { return m_register_task_handle; }
+  QueueHandle_t getReadQueue() const  { return m_read_queue; }
+
+  StationType getType() const { return m_type; }
 
 private:
 

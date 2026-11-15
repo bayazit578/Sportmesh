@@ -52,6 +52,8 @@ public:
    */
   ErrCode Start(QueueHandle_t events);
 
+  const ButtonConfig& getConfig() const { return m_cfg; }
+
 private:
   /**
    * @brief Notify the task of a GPIO edge.

@@ -141,7 +141,8 @@ ErrCode Station::ChangeType(StationType new_type)
     default:
       break;
   }
-  
+
+  m_type = new_type;
   return ErrCode::kOk;
 }
 
@@ -213,7 +214,7 @@ ErrCode Station::CreateBaseStationDiscoverTask()
 {
   auto res = xTaskCreate(
       taskDiscoverBaseStation, "discover base",
-      512, this,
+      4096, this,
       1, nullptr);
 
   if (res != pdPASS) {
@@ -228,7 +229,7 @@ ErrCode Station::CreateRegisterPunchTask()
 {
   auto res = xTaskCreate(
     taskRegisterPunch, "register punch",
-    512, this,
+    4096, this,
     2, &m_register_task_handle);
 
   if (res != pdPASS) {
@@ -248,11 +249,15 @@ ErrCode Station::CreateRegisterPunchTask()
 
 ErrCode Station::DeleteRegisterPunchTask()
 {
-  if (m_register_task_handle != NULL)
+  if (m_register_task_handle != nullptr) {
     vTaskDelete(m_register_task_handle);
+    m_register_task_handle = nullptr;
+  }
 
-  if (m_read_queue != NULL)
+  if (m_read_queue != nullptr) {
     vQueueDelete(m_read_queue);
+    m_read_queue = nullptr;
+  }
 
   return ErrCode::kOk;
 }

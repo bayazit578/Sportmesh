@@ -29,6 +29,13 @@ public:
 
 private:
 
+  void MenuSelectPrevious(); 
+  void MenuGoBack(); 
+  void MenuSelectNext(); 
+  void MenuConfirm(); 
+
+  const char* CurrentTypeToString();
+
   ErrCode CreateMainLoopTask();
 
   Station m_station;
@@ -39,7 +46,6 @@ private:
   Button m_lbutton, m_rbutton;
 
   QueueHandle_t m_btn_event_queue;
-
   TaskHandle_t m_main_loop_task_handle;
 
   friend void taskMainLoop(void* param);

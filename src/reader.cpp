@@ -63,7 +63,7 @@ ErrCode Reader::Start(TaskHandle_t read_register_task,
 
   // Trigger reader periodically
   res = xTaskCreate(taskTriggerReader, "trigger reader",
-                    512, this,
+                    4096, this,
                     1, nullptr);
 
   if (res != pdPASS) {
@@ -73,7 +73,7 @@ ErrCode Reader::Start(TaskHandle_t read_register_task,
   
   xTaskHandle on_read_int_task_handle = nullptr;
   res = xTaskCreate(taskOnReadInterrupt, "on read interrupt",
-                    512, this,
+                    4096, this,
                     2, &on_read_int_task_handle);
 
   attachInterruptArg(digitalPinToInterrupt(config::kReaderPinIrq), 

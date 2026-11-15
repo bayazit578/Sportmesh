@@ -21,7 +21,7 @@ ErrCode Button::Start(QueueHandle_t events) {
 
   m_push_events = events;
   pinMode(m_cfg.pin, m_cfg.internal_pullup ? INPUT_PULLUP : INPUT);
-  if (xTaskCreate(taskProcessInput, "button", 512, this, 1,
+  if (xTaskCreate(taskProcessInput, "button", 4096, this, 1,
     &m_process_task_handle) != pdPASS) {
     m_push_events = nullptr;
     m_process_task_handle = nullptr;

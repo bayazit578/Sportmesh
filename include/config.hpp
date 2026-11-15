@@ -27,7 +27,7 @@ constexpr uint8_t kReaderPinMosi = 13;
 constexpr uint8_t kReaderPinSck  = 14;
 constexpr uint8_t kReaderPinCs   = 15;
 
-constexpr uint8_t kBtn1Pin = 23;
+constexpr uint8_t kBtn1Pin = 21;
 constexpr uint8_t kBtn2Pin = 34;
 
 // I2C

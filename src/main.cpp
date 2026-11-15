@@ -1,8 +1,11 @@
 #include "button.hpp"
 #include "display.hpp"
+#include "errcode.hpp"
 #include "reader.hpp"
 #include "station_controller.hpp"
 #include "config.hpp"
+
+static constexpr const char* kTag = "main";
 
 void setup() {
 
@@ -61,6 +64,12 @@ void setup() {
     left_button_config,
     right_button_config
   };
+
+  if (SM::ErrCode code = controller.Start(); 
+      code != SM::ErrCode::kOk) {
+    ESP_LOGE(kTag, "Failed to start controller");
+    return;
+  }
 
   for (;;) { 
     vTaskDelay(pdMS_TO_TICKS(1000));
