@@ -1,3 +1,4 @@
+#include "button.hpp"
 #include "display.hpp"
 #include "reader.hpp"
 #include "station_controller.hpp"
@@ -44,11 +45,21 @@ void setup() {
     SM::config::kReaderPinCs,
   };
 
+  SM::ButtonConfig right_button_config {
+    SM::config::kBtn1Pin
+  };
+
+  SM::ButtonConfig left_button_config {
+    SM::config::kBtn2Pin
+  };
+
   SM::StationController controller {
     pin_config,
     radio_config,
     reader_config,
-    display_config
+    display_config,
+    left_button_config,
+    right_button_config
   };
 
   for (;;) { 

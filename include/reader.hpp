@@ -5,6 +5,7 @@
 #include <MFRC522.h>
 
 #include "errcode.hpp"
+#include "freertos/idf_additions.h"
 #include "sm_namespace.hpp"
 
 BEGIN_SPORTMESH_NAMESPACE
@@ -23,14 +24,15 @@ class Reader
 {
 public:
 
-  // @param read_register_task task that will be notified when read appears
-  // @param read_queue queue where PunchEvent will be put
-  // @param cfg pin configuration
-  Reader(TaskHandle_t read_register_task, 
-         QueueHandle_t read_queue,
-         ReaderConfig cfg);
+  /** @param cfg pin configuration */
+  Reader(const ReaderConfig& cfg);
 
-  ErrCode Start();
+  /** 
+  * @param read_register_task task that will be notified when read appears 
+  * @param read_queue queue where PunchEvent will be put
+  */
+  ErrCode Start(TaskHandle_t read_register_task,
+                QueueHandle_t read_queue);
 
   Reader(Reader&) = delete;
   Reader& operator=(const Reader&) = delete;

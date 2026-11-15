@@ -32,8 +32,8 @@ void taskDiscoverBaseStation(void* param);
 void taskRegisterPunch(void* param);
 
 
-Station::Station(lm::PinConfig pin_config, 
-                 lm::RadioConfig radio_config,
+Station::Station(const lm::PinConfig& pin_config, 
+                 const lm::RadioConfig& radio_config,
                  StationType station_type)
 
   : m_base_station_addr{ kInvalidAddress },
@@ -83,7 +83,7 @@ ErrCode Station::Start()
   }
   
   if (m_type == kCheckpoint) {
-    CHECK_OR_RETURN_ERROR(CreateRegisterPunshTask());
+    CHECK_OR_RETURN_ERROR(CreateRegisterPunchTask());
   }
 
   return ErrCode::kOk;
@@ -96,15 +96,11 @@ ErrCode Station::ChangeType(StationType new_type)
   ErrCode err = ErrCode::kOk;
   lm::Result res{};
 
-  res = m_mesher->setNodeCapabilities(new_type);
-  if (!res) {
-    ESP_LOGE(kTag, "Failed to change node type");
-    return ErrCode::kLoraMesher;
-  }
+  m_mesher->SetNodeCapabilities(new_type);
 
   switch (m_type) {
     case kBaseStation:
-      res = m_mesher->setNodeRole(lm::NodeRole::NODE_ONLY);
+      res = m_mesher->SetNodeRole(lm::NodeRole::NODE_ONLY);
       if (!res) {
         ESP_LOGE(kTag, "Failed to change node role");
         return ErrCode::kLoraMesher;
@@ -113,13 +109,13 @@ ErrCode Station::ChangeType(StationType new_type)
       CHECK_OR_RETURN_ERROR(CreateBaseStationDiscoverTask());
 
       if (new_type == kCheckpoint)
-        CHECK_OR_RETURN_ERROR(CreateRegisterPunshTask());
+        CHECK_OR_RETURN_ERROR(CreateRegisterPunchTask());
       
       break;
 
     case kCheckpoint:
       if (new_type == kBaseStation) {
-        res = m_mesher->setNodeRole(lm::NodeRole::NODE_ONLY);
+        res = m_mesher->SetNodeRole(lm::NodeRole::NODE_ONLY);
         if (!res) {
           ESP_LOGE(kTag, "Failed to change node role");
           return ErrCode::kLoraMesher;
@@ -131,7 +127,7 @@ ErrCode Station::ChangeType(StationType new_type)
 
     case kRetranslator:
       if (new_type == kBaseStation) {
-        res = m_mesher->setNodeRole(lm::NodeRole::NODE_ONLY);
+        res = m_mesher->SetNodeRole(lm::NodeRole::NETWORK_MANAGER);
         if (!res) {
           ESP_LOGE(kTag, "Failed to change node role");
           return ErrCode::kLoraMesher;
@@ -139,7 +135,7 @@ ErrCode Station::ChangeType(StationType new_type)
       }
 
       if (new_type == kCheckpoint)
-        CHECK_OR_RETURN_ERROR(CreateRegisterPunshTask());
+        CHECK_OR_RETURN_ERROR(CreateRegisterPunchTask());
       break;
 
     default:
@@ -224,9 +220,11 @@ ErrCode Station::CreateBaseStationDiscoverTask()
     ESP_LOGE(kTag, "Failed to create base discover task [RTOS err code %d]", res);
     return ErrCode::kRTOS;
   }
+
+  return ErrCode::kOk;
 }
 
-ErrCode Station::CreateRegisterPunshTask()
+ErrCode Station::CreateRegisterPunchTask()
 {
   auto res = xTaskCreate(
     taskRegisterPunch, "register punch",
@@ -244,6 +242,8 @@ ErrCode Station::CreateRegisterPunshTask()
     ESP_LOGE(kTag, "Failed to create read queue [RTOS err code %d]", res);
     return ErrCode::kRTOS;
   }
+
+  return ErrCode::kOk;
 }
 
 ErrCode Station::DeleteRegisterPunchTask()
@@ -253,6 +253,8 @@ ErrCode Station::DeleteRegisterPunchTask()
 
   if (m_read_queue != NULL)
     vQueueDelete(m_read_queue);
+
+  return ErrCode::kOk;
 }
 
 void taskRegisterPunch(void* param)

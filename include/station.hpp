@@ -23,8 +23,8 @@ enum StationType : std::uint8_t
 class Station
 {
 public:
-  Station(lm::PinConfig pin_config, 
-          lm::RadioConfig radio_config,
+  Station(const lm::PinConfig& pin_config, 
+          const lm::RadioConfig& radio_config,
           StationType station_type = kCheckpoint);
 
   Station(Station&) = delete;
@@ -70,7 +70,7 @@ private:
   /* @brief \ref taskDiscoverBaseStation deletes itself */
   ErrCode CreateBaseStationDiscoverTask();
 
-  ErrCode CreateRegisterPunshTask();
+  ErrCode CreateRegisterPunchTask();
   ErrCode DeleteRegisterPunchTask();
 
   friend void taskDiscoverBaseStation(void* param);

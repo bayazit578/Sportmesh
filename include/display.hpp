@@ -28,7 +28,7 @@ template<DisplayType T>
 class Display
 {
 public:
-  Display(DisplayConfig cfg);
+  Display(const DisplayConfig& cfg);
 
   Display(Display&) = delete;
   Display& operator=(const Display&) = delete;
@@ -36,7 +36,7 @@ public:
   Display(Display&&) noexcept = delete;
   Display& operator=(Display&&) noexcept = delete;
 
-  void Print(const char* fmt, ...)
+  void Printf(const char* fmt, ...)
     __attribute__((format(printf, 2, 3)));
 
 private:
@@ -51,15 +51,17 @@ private:
 
 
 template<DisplayType T>
-Display<T>::Display(DisplayConfig cfg )
+Display<T>::Display(const DisplayConfig& cfg)
   : m_display_module{ cfg.pin_data, cfg.pin_clk },
     m_display{ &m_display_module, cfg.digit_cnt }
 {
 }
 
 template<DisplayType T>
-void Display<T>::Print(const char* fmt, ...)
+void Display<T>::Printf(const char* fmt, ...)
 {
+  m_display.setCursor(0);
+
   va_list args;
   va_start(args, fmt);
   m_display.vprintf(fmt, args);

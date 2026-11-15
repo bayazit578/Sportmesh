@@ -1,6 +1,7 @@
 #include "reader.hpp"
 
 #include "Arduino.h"
+#include "FreeRTOSConfig.h"
 #include "esp_attr.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/portmacro.h"
@@ -24,19 +25,24 @@ void taskTriggerReader(void* param);
 void taskOnReadInterrupt(void *param);
 
 
-Reader::Reader(TaskHandle_t read_register_task, 
-               QueueHandle_t read_queue,
-               ReaderConfig cfg)
+Reader::Reader(const ReaderConfig& cfg)
   : m_pin_cfg{ cfg },
     m_mfrc522{ m_pin_cfg.pin_cs, m_pin_cfg.pin_rst },
-    m_read_register_task{ read_register_task },
-    m_read_queue{ read_queue }
+    m_read_register_task{ nullptr },
+    m_read_queue{ nullptr }
 {
   pinMode(m_pin_cfg.pin_irq, INPUT_PULLUP);
 }
 
-ErrCode Reader::Start()
+ErrCode Reader::Start(TaskHandle_t read_register_task,
+                      QueueHandle_t read_queue)
 {
+  configASSERT(read_register_task);
+  configASSERT(read_queue);
+
+  m_read_register_task = read_register_task;
+  m_read_queue = read_queue;
+
   SPI.begin(m_pin_cfg.pin_sck, m_pin_cfg.pin_miso,
             m_pin_cfg.pin_mosi, m_pin_cfg.pin_cs);
 
