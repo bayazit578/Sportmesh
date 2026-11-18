@@ -1,0 +1,60 @@
+# Run from the repository root: doxygen Doxyfile
+
+# Project
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = Sportmesh
+PROJECT_BRIEF          = "ESP32 firmware for LoRa mesh checkpoint stations"
+OUTPUT_DIRECTORY       = docs
+OUTPUT_LANGUAGE        = English
+FULL_PATH_NAMES        = YES
+STRIP_FROM_PATH        = .
+STRIP_FROM_INC_PATH    = include
+TAB_SIZE               = 2
+
+# Project sources only; dependencies and PCB files are not documentation input.
+INPUT                  = README.md include src
+INPUT_ENCODING         = UTF-8
+FILE_PATTERNS          = *.md *.hpp *.h *.cpp *.c
+RECURSIVE              = YES
+IMAGE_PATH             = img
+USE_MDFILE_AS_MAINPAGE  = README.md
+MARKDOWN_SUPPORT       = YES
+BUILTIN_STL_SUPPORT    = YES
+
+# Include the existing API while documentation is being completed.
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = YES
+SORT_MEMBERS_CTORS_1ST = YES
+SHOW_ENUM_VALUES       = YES
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+
+# Expand project namespace wrappers without parsing Arduino or library headers.
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+SEARCH_INCLUDES        = NO
+PREDEFINED             = "BEGIN_SPORTMESH_NAMESPACE=namespace SM {" \
+                         "END_SPORTMESH_NAMESPACE=}" \
+                         "ARDUINO_ISR_ATTR="
+
+# HTML output; no LaTeX toolchain required.
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_TREEVIEW      = YES
+SEARCHENGINE           = YES
+GENERATE_LATEX         = NO
+GENERATE_RTF           = NO
+GENERATE_MAN           = NO
+GENERATE_XML           = NO
+
+# Graphviz is optional; keep generation usable with Doxygen alone.
+HAVE_DOT               = NO
+
+# Report documentation errors without failing on the unfinished API.
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_AS_ERROR          = NO
