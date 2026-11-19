@@ -69,7 +69,13 @@
           "thermal_relief_spoke_width": 0.5
         }
       },
-      "diff_pair_dimensions": [],
+      "diff_pair_dimensions": [
+        {
+          "gap": 0.0,
+          "via_gap": 0.0,
+          "width": 0.0
+        }
+      ],
       "drc_exclusions": [],
       "meta": {
         "version": 2
@@ -206,7 +212,9 @@
           "td_width_to_size_filter_ratio": 0.9
         }
       ],
-      "track_widths": [],
+      "track_widths": [
+        0.0
+      ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
           "corner_radius_percentage": 80,
@@ -233,7 +241,12 @@
           "spacing": 0.6
         }
       },
-      "via_dimensions": [],
+      "via_dimensions": [
+        {
+          "diameter": 0.0,
+          "drill": 0.0
+        }
+      ],
       "zones_allow_external_fillets": false
     },
     "ipc2581": {
@@ -515,6 +528,24 @@
         "via_diameter": 0.6,
         "via_drill": 0.3,
         "wire_width": 6
+      },
+      {
+        "clearance": 0.2,
+        "name": "IO",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 0,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.4,
+        "tuning_profile": ""
+      },
+      {
+        "clearance": 0.2,
+        "name": "Power",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 1,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 1.0,
+        "tuning_profile": ""
       }
     ],
     "meta": {
@@ -522,7 +553,24 @@
     },
     "net_colors": {},
     "netclass_assignments": {},
-    "netclass_patterns": []
+    "netclass_patterns": [
+      {
+        "netclass": "Power",
+        "pattern": "+3V3"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "GND"
+      },
+      {
+        "netclass": "IO",
+        "pattern": "/sheet_1/IO_(0|2|4|5|12|13|14|15|16|17|18|19|21|22|23|25|26|27|32|33|34|35|RX0|TX0|EN)"
+      },
+      {
+        "netclass": "IO",
+        "pattern": "/sheet_3/LED_BUS*"
+      }
+    ]
   },
   "pcbnew": {
     "last_paths": {
@@ -691,35 +739,35 @@
     "top_level_sheets": [
       {
         "filename": "sportmesh_pcb.kicad_sch",
-        "name": "sportmesh_pcb_1",
+        "name": "sheet_1",
         "uuid": "124cf6de-3e23-45d9-84f3-24330a4fe7e8"
       },
       {
         "filename": "sportmesh_pcb_2.kicad_sch",
-        "name": "sportmesh_pcb_2",
+        "name": "sheet_2",
         "uuid": "e9ca0511-bc48-4564-b3ba-90a6e0eb3cc9"
       },
       {
         "filename": "sportmesh_pcb_3.kicad_sch",
-        "name": "sportmesh_pcb_3",
+        "name": "sheet_3",
         "uuid": "235553f7-a348-4525-976d-ca8a3fc649f4"
       }
     ],
-    "used_designators": "#PWR1-23,C1-9,CN_LED_STDBY1,J1-6,L1,R1,Rprog1-3,SW1,U1-5",
+    "used_designators": "#PWR1-36,BT1,C1-14,CN_BAT1,CN_BOOTLOADER1,CN_CHRG1,CN_LED_CHRG1,CN_LED_STDBY1,CN_READER1,J1-6,L1,LED1,R1,R4-12,Rprog1-3,SW1-2,SW_PWR1,U1-5,X1",
     "variants": []
   },
   "sheets": [
     [
       "124cf6de-3e23-45d9-84f3-24330a4fe7e8",
-      "sportmesh_pcb_1"
+      "sheet_1"
     ],
     [
       "e9ca0511-bc48-4564-b3ba-90a6e0eb3cc9",
-      "sportmesh_pcb_2"
+      "sheet_2"
     ],
     [
       "235553f7-a348-4525-976d-ca8a3fc649f4",
-      "sportmesh_pcb_3"
+      "sheet_3"
     ]
   ],
   "text_variables": {},
