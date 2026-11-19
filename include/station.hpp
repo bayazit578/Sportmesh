@@ -35,7 +35,7 @@ public:
 
   ErrCode Start();
 
-  /* 
+  /**
   * @brief changes station type
   *         invalidates read_handler and read_queue
   *         code that uses it must update them!
