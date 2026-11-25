@@ -1,1 +1,13 @@
 (version 1)
+(rule IO-IO
+	(constraint clearance (min 0.125mm))
+	(condition "A.hasNetclass('IO') && B.hasNetclass('IO')")
+)
+(rule IO-POWER
+	(constraint clearance (min 0.25mm))
+	(condition "A.hasNetclass('IO') && B.hasNetclass('Power')")
+)
+(rule POWER-POWER
+	(constraint clearance (min 0.5mm))
+	(condition "A.hasNetclass('Power') && B.hasNetclass('Power')")
+)

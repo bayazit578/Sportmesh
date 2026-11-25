@@ -1402,12 +1402,6 @@
 		(uuid "7298bf15-2dcc-4485-ab0e-098718216ddf")
 	)
 	(junction
-		(at 67.31 90.17)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "7b7e2e89-4a8f-4b5b-886a-6c3e677274d4")
-	)
-	(junction
 		(at 100.33 66.04)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1442,12 +1436,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "afd992a8-7530-4b45-acc0-bf84006d91ca")
-	)
-	(junction
-		(at 74.93 90.17)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "d20294a5-d653-4e62-af72-eaaed636e68b")
 	)
 	(no_connect
 		(at 96.52 107.95)
@@ -1946,6 +1934,36 @@
 			(type default)
 		)
 		(uuid "fd2133d9-385c-4487-b88f-d97c3901d7d4")
+	)
+	(label "PWR_BAT_IN"
+		(at 167.64 92.71 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0759e49d-27c7-4bb4-8d5d-8405561a378a")
+	)
+	(label "PWR_CHRG"
+		(at 36.83 90.17 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1fa36916-6ac5-40b5-ac30-73d9f5f61bd3")
+	)
+	(label "PWR_BAT"
+		(at 116.84 90.17 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2ef3ffac-d747-4f21-a6e3-73f193eaf649")
 	)
 	(label "IO_25"
 		(at 157.48 104.14 0)
@@ -2579,7 +2597,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 83.82 64.262 90)
 			(hide yes)
 			(show_name no)
@@ -2817,7 +2835,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
 			(at 135.5852 105.41 0)
 			(hide yes)
 			(show_name no)
@@ -3055,7 +3073,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
 			(at 75.8952 97.79 0)
 			(hide yes)
 			(show_name no)
@@ -3217,7 +3235,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 113.792 101.6 90)
 			(hide yes)
 			(show_name no)
@@ -3379,7 +3397,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 164.592 99.06 90)
 			(hide yes)
 			(show_name no)
@@ -3461,7 +3479,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
 			(at 209.2452 105.41 0)
 			(hide yes)
 			(show_name no)
@@ -3699,7 +3717,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
 			(at 181.3052 105.41 0)
 			(hide yes)
 			(show_name no)
@@ -4017,7 +4035,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 164.592 109.22 90)
 			(hide yes)
 			(show_name no)

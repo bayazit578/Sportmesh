@@ -32,7 +32,7 @@ StationController::StationController(
 
   : m_station { lora_pin_cfg, 
                 lora_radio_cfg, 
-                kCheckpoint },
+                kBaseStation },
     m_reader { reader_cfg },
     m_display { display_cfg },
     m_lbutton { left_buttong_cfg },
@@ -46,9 +46,12 @@ ErrCode StationController::Start()
 {
   START_CHECK_ERR_OR_RETURN(m_station);
 
-  // FIXME
-  m_reader.Start(m_station.getReadHandler(), 
-                 m_station.getReadQueue());
+  if (m_station.getType() == kCheckpoint) {
+    START_CHECK_ERR_OR_RETURN(
+      m_reader,
+      m_station.getReadHandler(),
+      m_station.getReadQueue());
+  }
 
   m_btn_event_queue = xQueueCreate(
     kBtnEventQueueSize, 

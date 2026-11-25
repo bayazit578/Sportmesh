@@ -530,22 +530,24 @@
         "wire_width": 6
       },
       {
-        "clearance": 0.2,
         "name": "IO",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": 0,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.4,
-        "tuning_profile": ""
+        "track_width": 0.25,
+        "tuning_profile": "",
+        "via_diameter": 0.6,
+        "via_drill": 0.3
       },
       {
-        "clearance": 0.2,
         "name": "Power",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": 1,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 1.0,
-        "tuning_profile": ""
+        "tuning_profile": "",
+        "via_diameter": 1.2,
+        "via_drill": 0.6
       }
     ],
     "meta": {
@@ -569,6 +571,10 @@
       {
         "netclass": "IO",
         "pattern": "/sheet_3/LED_BUS*"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/sheet_2/PWR_(BAT|BAT_IN|CHRG)"
       }
     ]
   },

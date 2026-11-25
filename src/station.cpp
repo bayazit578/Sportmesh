@@ -26,6 +26,8 @@ static constexpr uint32_t kReaderResponseTimeout_ms = 100;
 
 static constexpr uint32_t kReadQueueLen = 20;
 
+static constexpr float kTargetDutyCycle = 0.1f; // 10%
+
 void taskDiscoverBaseStation(void* param);
 
 // Triggered by reader
@@ -45,6 +47,7 @@ Station::Station(const lm::PinConfig& pin_config,
 
   lm::LoRaMeshProtocolConfig protocol_config;
   protocol_config.setNodeCapabilities(station_type);
+  protocol_config.setTargetDutyCycle(kTargetDutyCycle);
   
   if (m_type == kBaseStation)
     protocol_config.setNodeRole(lm::NodeRole::NETWORK_MANAGER);
